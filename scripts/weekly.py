@@ -1,6 +1,6 @@
 from __future__ import annotations
 import logging
-from .playlists import ensure_playlist, add_track_dedup, get_playlist_tracks
+from .playlists import ensure_playlist, add_tracks_dedup, get_playlist_tracks
 
 logger = logging.getLogger(__name__)
 
@@ -25,5 +25,5 @@ def run_discover_weekly_archive(sp, user_id: str, archive_prefix: str = "Discove
     
     archive_id = ensure_playlist(sp, user_id, archive_prefix, public=False)
     uris = get_playlist_tracks(sp, dw_id)
-    added = add_track_dedup(sp, archive_id, uris)
+    added = add_tracks_dedup(sp, archive_id, uris)
     return {"playlist_id": archive_id, "archived": added}

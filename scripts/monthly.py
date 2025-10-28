@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 from collections import OrderedDict
-from .playlists import month_key, ensure_playlist, add_track_dedup, format_month
+from .playlists import month_key, ensure_playlist, add_tracks_dedup, format_month
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ def run_monthly(sp, user_id: str, monthly_prefix: str, monthly_format: str) -> d
         else:
             break
     
-    added = add_track_dedup(sp, pid, to_add)
+    added = add_tracks_dedup(sp, pid, to_add)
     return {"playlist_id": pid, "playlist_name": playlist_name, "added": added}
 
 
@@ -123,7 +123,7 @@ def run_monthly_backfill(
         uris = buckets.get(mk, [])
         playlist_name = format_month(current, monthly_prefix, monthly_format)
         pid = ensure_playlist(sp, user_id, playlist_name, public=False)
-        added = add_track_dedup(sp, pid, uris)
+        added = add_tracks_dedup(sp, pid, uris)
         results.append({"month": mk, "playlist_name": playlist_name, "added": added})
         current += relativedelta(months=1)
 

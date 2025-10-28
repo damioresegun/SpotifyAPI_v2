@@ -18,8 +18,8 @@ def format_month(dt: datetime, monthly_prefix: str, monthly_format: str) -> str:
         name = f"{calendar.month_name[dt.month]} {dt.year}"  # e.g., September 2025
     elif monthly_format == "yyyy_mm":
         name = dt.strftime("%Y-%m")  # FIX: %Y, not $Y
-    elif monthly_format.startswith("custom:"):
-        fmt = monthly_format.split("custom:", 1)[1]
+    elif monthly_format.startswith("custom"):
+        fmt = monthly_format.split("custom:", 1)[1] if ":" in monthly_format else "%B %Y"
         name = dt.strftime(fmt)
     else:
         name = f"{calendar.month_name[dt.month]} {dt.year}"
@@ -70,7 +70,7 @@ def get_playlist_tracks(sp, playlist_id: str) -> list[str]:
     return uris
 
 @retryable
-def add_track_dedup(sp, playlist_id: str, new_uris: Iterable[str]) -> int:
+def add_tracks_dedup(sp, playlist_id: str, new_uris: Iterable[str]) -> int:
     existing = set(get_playlist_tracks(sp, playlist_id))
     to_add = [u for u in new_uris if u not in existing]
     if not to_add:

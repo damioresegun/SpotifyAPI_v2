@@ -11,7 +11,7 @@ class Settings:
     client_id: str
     client_secret: str
     redirect_uri: str
-    monthly_prefix: str = "Monthly"
+    monthly_prefix: str = ""
     archive_prefix: str = "Discover Weekly Archive"
     monthly_format: str = "month_year" # "month_year" or "yyyy_mm" or "custom:%B %Y"
 
@@ -26,7 +26,7 @@ class Settings:
             client_id=cid,
             client_secret=csec,
             redirect_uri=ruri,
-            monthly_prefix=os.getenv("SPOTIFY_MONTH_PREFIX", "Monthly"),
+            monthly_prefix=os.getenv("SPOTIFY_MONTH_PREFIX", ""),
             archive_prefix=os.getenv("SPOTIFY_ARCHIVE_PREFIX", "Discover Weekly Archive"),
             monthly_format=os.getenv("SPOTIFY_MONTHLY_FORMAT", "month_year")
         )

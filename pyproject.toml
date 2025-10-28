@@ -25,4 +25,7 @@ spotify_api_v2 = "scripts.cli:app"
 
 [tool.setuptools]
 package-dir = {"" = "."}
-packages = {find = {where = ["scripts"]}}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scripts*"]
