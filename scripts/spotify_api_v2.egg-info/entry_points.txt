@@ -1,0 +1,2 @@
+[console_scripts]
+spotify_api_v2 = spotify_api_v2.cli:app

@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+scripts/spotify_api_v2.egg-info/PKG-INFO
+scripts/spotify_api_v2.egg-info/SOURCES.txt
+scripts/spotify_api_v2.egg-info/dependency_links.txt
+scripts/spotify_api_v2.egg-info/entry_points.txt
+scripts/spotify_api_v2.egg-info/requires.txt
+scripts/spotify_api_v2.egg-info/top_level.txt
+tests/test_naming.py
+tests/test_state.py

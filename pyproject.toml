@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spotify_api_v2"
+version = "2"
+description = "Improved CLI for Spotify monthly and weekly workflows"
+authors = [{name = "Dami Oresegun"}]
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "GPL-3.0-or-later"}
+dependencies = [
+    "spotipy~=2.24",
+    "python-dotenv~=1.0",
+    "typer~=0.12",
+    "tenacity~=8.4",
+    "platformdirs~=4.2",
+    "requests~=2.32",
+    "python-dateutil~=2.9"
+]
+
+[project.scripts]
+spotify_api_v2 = "scripts.cli:app"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+packages = {find = {where = ["scripts"]}}

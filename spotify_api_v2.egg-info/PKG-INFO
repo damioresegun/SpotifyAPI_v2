@@ -1,0 +1,38 @@
+Metadata-Version: 2.4
+Name: spotify_api_v2
+Version: 2
+Summary: Improved CLI for Spotify monthly and weekly workflows
+Author: Dami Oresegun
+License: GPL-3.0-or-later
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: spotipy~=2.24
+Requires-Dist: python-dotenv~=1.0
+Requires-Dist: typer~=0.12
+Requires-Dist: tenacity~=8.4
+Requires-Dist: platformdirs~=4.2
+Requires-Dist: requests~=2.32
+Requires-Dist: python-dateutil~=2.9
+Dynamic: license-file
+
+# SpotyifyAPI_v2
+
+A small and more indepth revamp of the Spotify APIs for making playlists
+
+- Adds this month's liked songs to `Monthly YYYY-MM` (idempotent)
+- Archives Discover Weekly into a cumulative archive (idempotent)
+- Deletes playlists by regex with `--dry-run` safety
+
+## Quickstart
+1. Create a Spotify app: set Redirect URI to `http://127.0.0.1:5000/redirect`
+2. Copy `.env.example` -> `.env` and fill in client credentials
+3. Install:
+   ```bash
+   python -m venv .venv && . .venv/bin/activate
+   pip install -e .
+   # run commands
+   spotify-api-v2 monthly
+   spotify-api-v2 weekly
+   spotify-api-v2 delete "^Monthly \\d{4}-\d{2}$" --dry-run False
+    ```
