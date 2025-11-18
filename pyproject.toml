@@ -17,7 +17,9 @@ dependencies = [
     "tenacity~=8.4",
     "platformdirs~=4.2",
     "requests~=2.32",
-    "python-dateutil~=2.9"
+    "python-dateutil~=2.9",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0"
 ]
 
 [project.scripts]
@@ -28,4 +30,4 @@ package-dir = {"" = "."}
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["scripts*"]
+include = ["spotify_api_v2*"]
