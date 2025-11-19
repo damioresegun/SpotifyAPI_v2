@@ -1,6 +1,7 @@
 # spotify_api_v2/desktop/app_fastapi.py
-
+from __future__ import annotations
 from pathlib import Path
+import sys
 import webbrowser
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
@@ -21,7 +22,23 @@ load_dotenv()
 
 app = FastAPI(title="SpotifyAPI_v2 Desktop")
 
-BASE_DIR = Path(__file__).resolve().parent
+# if getattr(sys, "frozen", False):
+#     # running inside pyinstaller module
+#     BASE_DIR = Path(sys._MEIPASS)
+# else:
+#     BASE_DIR = Path(__file__).resolve().parent
+# UI_DIR = BASE_DIR / "ui"
+
+if getattr(sys, "frozen", False):
+    # running inside pyinstaller module
+    EXEC_DIR = Path(sys.executable).resolve().parent        # where the .exe lives
+    BASE_DIR = Path(sys._MEIPASS)                           # where bundled files are extracted
+    env_path = EXEC_DIR / ".env"                            # expect .env next to the exe
+    load_dotenv(env_path)                                   # load that .env explicitly
+else:
+    EXEC_DIR = Path(__file__).resolve().parent.parent.parent    # usually project root, if you want it
+    BASE_DIR = Path(__file__).resolve().parent                  # desktop/folder
+    load_dotenv()                                               # default: looks in CWD
 UI_DIR = BASE_DIR / "ui"
 
 class BackfillRequest(BaseModel):
@@ -55,8 +72,9 @@ def api_login():
         me = sp.current_user()
         display_name = me.get("display_name") or user_id
     except Exception as e:
-        import traceback
+        import traceback, logging
         traceback.print_exc()
+        logging.getLogger("spotify_app").exception("Login failed")
         raise HTTPException(status_code=500, detail=str(e))
 
     return {
@@ -166,7 +184,7 @@ def run():
     url = f"http://127.0.0.1:{port}"
     print(f"Starting desktop app at {url}")
     webbrowser.open(url)
-    uvicorn.run(app, host="127.0.0.1", port=port)
+    uvicorn.run(app, host="127.0.0.1", port=port, log_config=None,)
 
 
 if __name__ == "__main__":

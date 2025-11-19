@@ -117,8 +117,16 @@
                 });
                 console.log("Login response:", res.status);
                 if (!res.ok) {
-                throw new Error("HTTP " + res.status);
+                    let extra = "";
+                    try {
+                        const errData = await res.json();
+                        if (errData && errData.detail) {
+                            extra = ` (${errData.detail})`;
+                        }
+                    } catch (_) {}
+                throw new Error("HTTP " + res.status + extra);
                 }
+                
                 const data = await res.json();
                 output.textContent = JSON.stringify(data, null, 2);
             } catch (err) {
@@ -233,7 +241,7 @@
             btnMonthly.addEventListener("click", createMonthly);
             btnBackfill.addEventListener("click", backfillMonthly);
             btnTerminate.addEventListener("click", terminateApp);
-            
+
     </script>
 
     </body>
