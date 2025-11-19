@@ -62,6 +62,26 @@
             <!-- buttons to create later-->
             <button id="btnLogin" class="primary">Log in with Spotify</button>
             <button id="btnMonthly" class="secondary">Create monthly playlist</button>
+            <button id="btnTerminate" class="danger" style="margin-top: 1rem;">Quit App</button>
+        </div>
+
+        <div style="margin-top: 1rem;">
+            <label for="backfillMonths">Backfill last (months):</label>
+            <input
+                id="backfillMonths"
+                type="number"
+                min="1"
+                step="1"
+                value="3"
+                style="width: 4rem; margin: 0 0.5rem;"
+            />
+            <label>
+                <input id="backfillAll" type="checkbox" />
+                From start of your account (ignore months)
+            </label>
+            <button id="btnBackfill" class="secondary" style="margin-left: 0.5rem;">
+                Backfill
+            </button>
         </div>
 
         <div id="output">Click "Check backend status" to test the connection...</div>
@@ -69,54 +89,152 @@
         <script>
             const output = document.getElementById("output");
 
-            async function callStatus() {
-                output.textContent = "Calling /api/status...";
-                try {
-                    const res = await fetch("/api/status");
-                    if (!res.ok) {
-                        throw new Error("HTTP " + res.status);
-                    }
-                    const data = await res.json();
-                    output.textContent = JSON.stringify(data, null, 2);
-                } catch (err) {
-                    output.textContent = "Error calling /api/status: " + err.message;
-                }
-            }
-            document.getElementById("btnStatus").addEventListener("click", callStatus);
+            console.log("🎧 Script loaded");
 
-            async function createMonthly() {
-                output.textContent = "Creating Monthly playlist";
-                try {
-                    const res = await fetch("/api/playlists/monthly", {
-                        method: "POST",
-                    });
-                    if (!res.ok) {
-                        throw new Error("HTTP " + res.status);
-                    }
-                    const data = await res.json();
-                    output.textContent = JSON.stringify(data, null, 2);
-                } catch (err) {
-                    output.textContent = "Error creating monthly playlist: " + err.message;
+            async function callStatus() {
+            console.log("callStatus() called");
+            output.textContent = "Calling /api/status…";
+            try {
+                const res = await fetch("/api/status");
+                console.log("Status response:", res.status);
+                if (!res.ok) {
+                throw new Error("HTTP " + res.status);
                 }
+                const data = await res.json();
+                output.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                console.error("Status error:", err);
+                output.textContent = "Error calling /api/status: " + err.message;
             }
-            document.getElementById("btnMonthly").addEventListener("click", createMonthly);
+            }
 
             async function loginWithSpotify() {
-                output.textContent = "Opening Spotify login (if needed)..."
+            console.log("loginWithSpotify() called");
+            output.textContent = "Opening Spotify login (if needed)…";
+            try {
+                const res = await fetch("/api/login", {
+                method: "POST",
+                });
+                console.log("Login response:", res.status);
+                if (!res.ok) {
+                throw new Error("HTTP " + res.status);
+                }
+                const data = await res.json();
+                output.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                console.error("Login error:", err);
+                output.textContent = "Error during login: " + err.message;
+            }
+            }
+
+            async function createMonthly() {
+            console.log("createMonthly() called");
+            output.textContent = "Creating monthly playlist…";
+            try {
+                const res = await fetch("/api/playlists/monthly", {
+                method: "POST",
+                });
+                console.log("Monthly response:", res.status);
+                if (!res.ok) {
+                throw new Error("HTTP " + res.status);
+                }
+                const data = await res.json();
+                output.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                console.error("Monthly error:", err);
+                output.textContent = "Error creating monthly playlist: " + err.message;
+            }
+            }
+
+            async function backfillMonthly() {
+                console.log("backfillMonthly() called");
+                const fromStart = backfillAllCheckbox.checked;
+                let months = null;
+                if (!fromStart) {
+                    const raw = backfillMonthsInput.value;
+                    const parsed = parseInt(raw, 10);
+                    if (Number.isNaN(parsed) || parsed <= 0) {
+                        output.textContent = "Please enter a valid positive number of months";
+                        return;
+                    }
+                    months = parsed;
+                }
+                const body = {
+                    from_start: fromStart,
+                    months: months
+                };
+                output.textContent = fromStart
+                ? "Backfilling monthly playlists from the start of the account..."
+                : `Backfilling monthly playlists for the last ${months} months...`;
                 try {
-                    const res = await fetch("/api/login", {
+                    const res = await fetch("/api/playlists/monthly/backfill", {
                         method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(body),
                     });
+                    console.log("Backfill response:", res.status);
                     if (!res.ok) {
-                        throw new Error("HTTP " + res.status);
+                        const errData = await res.json().catch(() => null);
+                        const detail = errData && errData.detail ? ` (${errData.detail})` : "";
+                        throw new Error("HTTP " + res.status + detail);
                     }
                     const data = await res.json();
                     output.textContent = JSON.stringify(data, null, 2);
                 } catch (err) {
-                    output.textContent = "Error during login: " + err.message;
+                    console.error("Backfill error:", err);
+                    output.textContent = "Error during backfill: " + err.message;
                 }
             }
-            document.getElementById("btnLogin").addEventListener("click", loginWithSpotify);
-        </script>
+
+            async function terminateApp() {
+                console.log("terminateApp() called")
+                output.textContent = "Shutting down app..."
+
+                try {
+                    const res = await fetch("/api/shutdown", {
+                        method: "POST",
+                    });
+                    console.log("Shutdown response:", res.status);
+
+                    if (!res.ok) {
+                        throw new Error("HTTP " + res.status);
+                    }
+
+                    const data = await res.json();
+                    output.textContent = data.message || "App is shutting down...";
+
+                    // Optionally fade out / disable UI
+                    setTimeout(() => {
+                        document.body.innerHTML = "<h2>Application closed.</h2>";
+                    }, 800);
+                } catch (err) {
+                    console.error("Terminate error:", err);
+                    output.textContent = "Error during shutdown: " + err.message;
+                }
+            }
+
+            const btnStatus = document.getElementById("btnStatus");
+            const btnLogin = document.getElementById("btnLogin");
+            const btnMonthly = document.getElementById("btnMonthly");
+            const btnBackfill = document.getElementById("btnBackfill");
+            const backfillMonthsInput = document.getElementById("backfillMonths");
+            const backfillAllCheckbox = document.getElementById("backfillAll");
+            const btnTerminate = document.getElementById("btnTerminate");
+
+            console.log("btnStatus =", btnStatus);
+            console.log("btnLogin  =", btnLogin);
+            console.log("btnMonthly=", btnMonthly);
+            console.log("btnMonthly=", btnBackfill);
+
+            btnStatus.addEventListener("click", callStatus);
+            btnLogin.addEventListener("click", loginWithSpotify);
+            btnMonthly.addEventListener("click", createMonthly);
+            btnBackfill.addEventListener("click", backfillMonthly);
+            btnTerminate.addEventListener("click", terminateApp);
+            
+    </script>
+
     </body>
 </html>
