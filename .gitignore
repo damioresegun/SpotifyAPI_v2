@@ -1,0 +1,17 @@
+.env
+.cache
+__pycache__/
+*.pyc
+*.token.json
+.idea/
+.vscode/
+.dist/
+dist/
+build/
+.coverage
+.pytest_cache/
+.spotify_api_v2/
+# Streamlit secrets — never commit credentials
+.streamlit/secrets.toml
+# Logo (binary asset — store separately)
+logo.png

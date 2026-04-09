@@ -9,6 +9,9 @@ import uvicorn
 from dotenv import load_dotenv
 from spotify_api_v2.core.cli import get_client
 from spotify_api_v2.core.monthly import run_monthly, run_monthly_backfill
+from spotify_api_v2.core.config import Settings
+from spotify_api_v2.core.auth import build_oauth
+from spotify_api_v2.core.client import make_client
 import requests
 from typing import Optional
 from pydantic import BaseModel
@@ -40,6 +43,24 @@ else:
     BASE_DIR = Path(__file__).resolve().parent                  # desktop/folder
     load_dotenv()                                               # default: looks in CWD
 UI_DIR = BASE_DIR / "ui"
+
+def get_client_desktop():
+    """
+    Desktop-only client: reuse a cached Spotify token, do not start OAuth flow
+    This allows avoidance of any local HTTP servers
+    """
+    settings = Settings.from_env()
+
+    # Build the same SpotifyOAuth object used in CLI
+    oauth = build_oauth(settings)
+
+    # Only read from cache; do not trigger a full OAuth
+    token_info = oauth.get_cached_token()
+    if not token_info:
+        raise RuntimeError(
+            "No cached Spotify token found. \n\n"
+            "Please run the CLI version once "
+        )
 
 class BackfillRequest(BaseModel):
     months: Optional[int] = None

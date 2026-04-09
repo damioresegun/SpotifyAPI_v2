@@ -19,7 +19,7 @@ class Settings:
     def from_env() -> "Settings":
         cid = os.getenv("SPOTIPY_CLIENT_ID")
         csec = os.getenv("SPOTIPY_CLIENT_SECRET")
-        ruri = os.getenv("SPOTIPY_REDIRECT_URI", "http://127.0.0.1:5000/redirect")
+        ruri = os.getenv("SPOTIPY_REDIRECT_URI", "http://127.0.0.1:8501")
         if not cid or not csec:
             raise RuntimeError("Missing SPOTIPY_CLIENT_ID or SPOTIPY_CLIENT_SECRET")
         return Settings(

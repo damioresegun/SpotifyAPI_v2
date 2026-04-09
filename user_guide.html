@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spotify Manager — User Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+
+    :root {
+      --green: #1db954;
+      --green-light: #17df64;
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --bg3: #0d1b2e;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
+      --card: rgba(255,255,255,0.04);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--bg3) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    /* ── Scrollbar ───────────────────────────── */
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); }
+    ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 8px; }
+
+    /* ── Header ──────────────────────────────── */
+    header {
+      background: rgba(0,0,0,0.4);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding: 1.2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header .logo-ring {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--green-light));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 0 18px rgba(29,185,84,0.45);
+    }
+    header h1 { font-size: 1.25rem; font-weight: 700; }
+    header span { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── Layout ──────────────────────────────── */
+    .wrapper { display: flex; min-height: calc(100vh - 72px); }
+
+    nav {
+      width: 230px;
+      flex-shrink: 0;
+      padding: 2rem 1rem;
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 72px;
+      height: calc(100vh - 72px);
+      overflow-y: auto;
+    }
+
+    nav p.nav-section {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 1.2rem 0.6rem 0.4rem;
+    }
+    nav a {
+      display: block;
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    nav a:hover, nav a.active {
+      background: rgba(29,185,84,0.12);
+      color: var(--green);
+    }
+
+    main { flex: 1; padding: 2.5rem 3rem; max-width: 900px; }
+
+    /* ── Sections ────────────────────────────── */
+    section { display: none; }
+    section.active { display: block; }
+
+    /* ── Typography ──────────────────────────── */
+    h2 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.25rem; font-weight: 700; margin: 2rem 0 0.75rem; color: var(--green); }
+    p  { color: var(--muted); margin-bottom: 1rem; }
+    strong { color: var(--text); }
+
+    /* ── Cards ───────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.2rem;
+      backdrop-filter: blur(8px);
+    }
+    .card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .card p  { font-size: 0.9rem; margin-bottom: 0; }
+
+    /* ── Steps ───────────────────────────────── */
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding: 1rem 1.2rem 1rem 3.4rem;
+      margin-bottom: 0.8rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--green-light));
+      color: #000;
+      font-weight: 800;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .steps li strong { color: var(--green-light); }
+
+    /* ── Tabs ────────────────────────────────── */
+    .tab-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 640px) { .tab-grid { grid-template-columns: 1fr; } }
+
+    .tab-card { 
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.4rem;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .tab-card:hover {
+      border-color: rgba(29,185,84,0.35);
+      box-shadow: 0 4px 20px rgba(29,185,84,0.1);
+    }
+    .tab-card .emoji { font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .tab-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .tab-card p  { font-size: 0.82rem; color: var(--muted); margin: 0; }
+
+    /* ── Alert boxes ─────────────────────────── */
+    .alert {
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: flex;
+      gap: 0.65rem;
+      align-items: flex-start;
+    }
+    .alert.info    { background: rgba(59,130,246,0.1);  border: 1px solid rgba(59,130,246,0.3);  color: #93c5fd; }
+    .alert.warning { background: rgba(234,179,8,0.1);   border: 1px solid rgba(234,179,8,0.3);   color: #fde68a; }
+    .alert.success { background: rgba(29,185,84,0.1);   border: 1px solid rgba(29,185,84,0.35);  color: #6ee7b7; }
+    .alert.danger  { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.3);   color: #fca5a5; }
+    .alert .icon   { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Code ────────────────────────────────── */
+    code {
+      background: rgba(255,255,255,0.08);
+      padding: 0.15em 0.45em;
+      border-radius: 5px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.85em;
+      color: var(--green-light);
+    }
+
+    /* ── FAQ ─────────────────────────────────── */
+    details {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.3rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+    }
+    summary {
+      font-weight: 600;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+    summary::after { content: '+'; color: var(--green); font-size: 1.2rem; transition: transform 0.2s; }
+    details[open] summary::after { content: '−'; }
+    details p { margin-top: 0.75rem; font-size: 0.9rem; }
+
+    /* ── CTA button ──────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.3rem;
+      background: linear-gradient(90deg, var(--green), var(--green-light));
+      color: #000;
+      font-weight: 700;
+      border-radius: 24px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .btn:hover { box-shadow: 0 4px 18px rgba(29,185,84,0.45); transform: translateY(-1px); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ══════════════════════════════════════════════════════════ -->
+<header>
+  <div class="logo-ring">🎵</div>
+  <div>
+    <h1>Spotify Manager</h1>
+    <span>User Guide &amp; Documentation</span>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- ═══ SIDEBAR NAV ═══════════════════════════════════════════════════ -->
+  <nav>
+    <p class="nav-section">Getting Started</p>
+    <a onclick="show('start')" class="active" id="nav-start">🚀 First-Time Setup</a>
+    <a onclick="show('spotify')" id="nav-spotify">🛠 Creating Your Spotify App</a>
+    <a onclick="show('connect')" id="nav-connect">🔗 Connecting the App</a>
+
+    <p class="nav-section">Features</p>
+    <a onclick="show('tabs')" id="nav-tabs">📋 All Features</a>
+    <a onclick="show('monthly')" id="nav-monthly">📅 Monthly Playlists</a>
+    <a onclick="show('tools')" id="nav-tools">🧰 Library Tools</a>
+
+    <p class="nav-section">Help</p>
+    <a onclick="show('faq')" id="nav-faq">❓ FAQ</a>
+    <a onclick="show('trouble')" id="nav-trouble">🔧 Troubleshooting</a>
+  </nav>
+
+  <!-- ═══ MAIN CONTENT ══════════════════════════════════════════════════ -->
+  <main>
+
+    <!-- FIRST-TIME SETUP ───────────────────────────────────────────────── -->
+    <section id="start" class="active">
+      <h2>🚀 First-Time Setup</h2>
+      <p>Welcome to Spotify Manager. This guide will get you up and running in about 5 minutes.</p>
+
+      <div class="alert success">
+        <span class="icon">✅</span>
+        <span><strong>No installation needed.</strong> The app runs entirely in your web browser — just open the link and follow the on-screen wizard.</span>
+      </div>
+
+      <h3>What You Need</h3>
+      <div class="card">
+        <h4>✔ A Spotify account (free or premium)</h4>
+        <p>Any existing Spotify account works. You'll log in with it during setup.</p>
+      </div>
+      <div class="card">
+        <h4>✔ A free Spotify Developer App</h4>
+        <p>This is how Spotify knows which tools are authorised to access your library. The next section walks you through creating one — it's free and takes 3 minutes.</p>
+      </div>
+      <div class="card">
+        <h4>✔ A modern browser</h4>
+        <p>Chrome, Edge, or Firefox (latest version). Safari also works.</p>
+      </div>
+
+      <h3>The First-Visit Flow</h3>
+      <ol class="steps">
+        <li>Open the Spotify Manager link you were given.</li>
+        <li>The app will show a <strong>5-step setup wizard</strong> — follow it from Welcome through to "You're all set".</li>
+        <li>Once setup is done, click <strong>"Connect to Spotify"</strong> to link your account.</li>
+        <li>You're in! The full dashboard loads and your library is ready to manage.</li>
+        <li>Next time you visit, the app remembers your credentials — no re-setup needed.</li>
+      </ol>
+    </section>
+
+    <!-- SPOTIFY APP SETUP ──────────────────────────────────────────────── -->
+    <section id="spotify">
+      <h2>🛠 Creating Your Spotify Developer App</h2>
+      <p>This is the most important step. Spotify requires every third-party tool to be registered through their Developer Portal. It's free and takes about 3 minutes.</p>
+
+      <div class="alert info">
+        <span class="icon">ℹ️</span>
+        <span>You only do this once. After your app is created, Spotify Manager will remember it in your browser.</span>
+      </div>
+
+      <h3>Step-by-Step</h3>
+      <ol class="steps">
+        <li>Go to <strong>developer.spotify.com/dashboard</strong> and click <strong>Log In</strong>. Use your normal Spotify username and password.</li>
+        <li>Click the blue <strong>"Create app"</strong> button in the top-right.</li>
+        <li>Fill in the form:
+          <br><br>
+          • <strong>App name</strong> → anything, e.g. <code>My Spotify Manager</code><br>
+          • <strong>App description</strong> → anything, e.g. <code>Personal playlist tool</code><br>
+          • <strong>Redirect URI</strong> → leave blank for now (the app will show you the correct value)<br>
+          • <strong>APIs used</strong> → tick ✅ <strong>Web API</strong>
+        </li>
+        <li>Tick the box to agree to Spotify's Developer Terms of Service.</li>
+        <li>Click <strong>Save</strong>.</li>
+        <li>Your app is created! You'll be taken to its dashboard page.</li>
+      </ol>
+
+      <h3>Finding Your Client ID &amp; Secret</h3>
+      <ol class="steps">
+        <li>On your app's dashboard, click <strong>Settings</strong> (top-right).</li>
+        <li>Your <strong>Client ID</strong> is shown immediately on the Settings page — copy it.</li>
+        <li>Click <strong>"View client secret"</strong> to reveal your <strong>Client Secret</strong> — copy it too.</li>
+        <li>Paste both into the Spotify Manager wizard when asked.</li>
+      </ol>
+
+      <div class="alert warning">
+        <span class="icon">⚠️</span>
+        <span>Never share your Client Secret publicly. It's specific to your personal Spotify Developer App.</span>
+      </div>
+
+      <h3>Setting the Redirect URI</h3>
+      <p>The Redirect URI tells Spotify where to send you back after you log in. The Spotify Manager wizard will display the exact URL to use.</p>
+      <ol class="steps">
+        <li>In the Spotify Manager wizard, go to Step 3 — <strong>"Set the Redirect URI"</strong>. Copy the URL shown in the green box.</li>
+        <li>Back in the Spotify Developer Dashboard → your app → <strong>Settings</strong>.</li>
+        <li>Scroll to <strong>Redirect URIs</strong> → click <strong>Add</strong>.</li>
+        <li>Paste the URL exactly as shown in Spotify Manager → click <strong>Save</strong>.</li>
+      </ol>
+
+      <div class="alert danger">
+        <span class="icon">🚫</span>
+        <span>The redirect URI must match <strong>exactly</strong> — including <code>https://</code> vs <code>http://</code> and no trailing slash. A mismatch is the most common cause of login failures.</span>
+      </div>
+    </section>
+
+    <!-- CONNECTING ──────────────────────────────────────────────────────── -->
+    <section id="connect">
+      <h2>🔗 Connecting to Spotify</h2>
+      <p>Once you've completed the setup wizard and entered your credentials, you'll need to authorise Spotify Manager to access your account.</p>
+
+      <ol class="steps">
+        <li>After the wizard, you'll see a <strong>"Connect to Spotify"</strong> button on the main screen.</li>
+        <li>Click it. A Spotify login/authorisation page will open.</li>
+        <li>Log in with your Spotify account (if not already logged in) and click <strong>Agree</strong>.</li>
+        <li>Spotify will redirect you back to Spotify Manager automatically.</li>
+        <li>You'll see a green banner: <strong>✅ Securely Connected as [Your Name]</strong>. You're in!</li>
+      </ol>
+
+      <h3>Reconnecting</h3>
+      <p>Your Spotify login session lasts about an hour. The app refreshes it automatically in the background — you won't usually need to reconnect manually. If you ever get logged out, just click the Connect button again.</p>
+
+      <h3>Updating Your Credentials</h3>
+      <p>If you need to change your Spotify Developer App (e.g. you created a new one), click the <strong>⚙️ Settings</strong> panel in the left sidebar, then click <strong>"Update Spotify Credentials"</strong> to re-run the setup wizard.</p>
+    </section>
+
+    <!-- ALL FEATURES ────────────────────────────────────────────────────── -->
+    <section id="tabs">
+      <h2>📋 All Features at a Glance</h2>
+      <p>Spotify Manager has 12 features accessible via the tab bar at the top of the dashboard.</p>
+
+      <div class="tab-grid">
+        <div class="tab-card">
+          <div class="emoji">📅</div>
+          <h4>Monthly Playlists</h4>
+          <p>Auto-creates a playlist for each month containing tracks you saved that month. Can generate past months retroactively.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">🧹</div>
+          <h4>Playlist Cleaner</h4>
+          <p>Bulk-unfollow playlists that match a name pattern (e.g. all playlists starting with "2021").</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">📊</div>
+          <h4>Top Tracks</h4>
+          <p>Generate a playlist from your most listened-to tracks over the last 4 weeks, 6 months, or all time.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">💽</div>
+          <h4>Discography Builder</h4>
+          <p>Search any artist and save every track they've ever released into a chronological playlist.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">👯</div>
+          <h4>Duplicate Finder</h4>
+          <p>Scan any playlist you own and automatically remove duplicate tracks.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">🔀</div>
+          <h4>Blender</h4>
+          <p>Merge multiple playlists into one giant shuffled mega-playlist.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">🕰️</div>
+          <h4>Time Machine</h4>
+          <p>Generate a playlist of the top 50 hits from any year between 1950 and today.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">🗄️</div>
+          <h4>Exporter</h4>
+          <p>Download any playlist as a CSV spreadsheet — great for backups or sharing setlists.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">🎧</div>
+          <h4>Live Setlists</h4>
+          <p>Enter an artist name and recreate their most recent live concert setlist as a Spotify playlist (requires a free Setlist.fm API key).</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">📻</div>
+          <h4>Player &amp; History</h4>
+          <p>See what's currently playing and log your last 50 played tracks to a playlist.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">👤</div>
+          <h4>Profile Stats</h4>
+          <p>View your top artists of all time and prune artists you no longer listen to.</p>
+        </div>
+        <div class="tab-card">
+          <div class="emoji">🌍</div>
+          <h4>Dead Song Checker</h4>
+          <p>Scan a playlist for greyed-out or unplayable tracks in your country and remove them automatically.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- MONTHLY PLAYLISTS ──────────────────────────────────────────────── -->
+    <section id="monthly">
+      <h2>📅 Monthly Playlists — Deep Dive</h2>
+      <p>This is the flagship feature. It scans your Saved Songs library and organises tracks into a playlist for each month they were added.</p>
+
+      <h3>Current Month</h3>
+      <p>Click <strong>"Generate Current Month Playlist"</strong>. The app creates (or updates) a playlist like <code>April 2026</code> with all tracks you saved this month.</p>
+
+      <h3>Retroactive Backfill</h3>
+      <p>Tick <strong>"Retroactively create past playlists?"</strong> to set a date range and create playlists for every month you've ever saved music — all the way back to when you joined Spotify.</p>
+
+      <ol class="steps">
+        <li>Tick the <strong>"Retroactively create…"</strong> checkbox.</li>
+        <li>Set a <strong>Start Date</strong> (e.g. January 2020) and <strong>End Date</strong> (today).</li>
+        <li>Click <strong>"Generate Retroactive Playlists"</strong>.</li>
+        <li>Wait — this can take a few minutes for large libraries. A summary shows how many tracks were added per month.</li>
+      </ol>
+
+      <div class="alert info">
+        <span class="icon">ℹ️</span>
+        <span>If a monthly playlist already exists, the app only adds <em>new</em> tracks that aren't already in it — it won't create duplicates.</span>
+      </div>
+    </section>
+
+    <!-- LIBRARY TOOLS ──────────────────────────────────────────────────── -->
+    <section id="tools">
+      <h2>🧰 Library Tools</h2>
+
+      <h3>Duplicate Finder</h3>
+      <p>Click <strong>"Load My Playlists"</strong> first, then select a playlist from the dropdown and click <strong>"Prune Duplicates"</strong>. Only playlists you own can be pruned.</p>
+
+      <h3>Blender</h3>
+      <p>Load your playlists first (Duplicate Finder tab), then go to Blender. Select multiple playlists, give the merged playlist a name, and click <strong>"Blend Playlists"</strong>.</p>
+
+      <h3>Dead Song Checker</h3>
+      <p>Loads your playlists and scans for tracks that are not playable in your country (greyed-out songs). Removes them automatically. Note: this only works if Spotify reports your country code.</p>
+
+      <h3>Live Setlists</h3>
+      <p>Requires a free <strong>Setlist.fm API key</strong>.</p>
+      <ol class="steps">
+        <li>Sign up free at <strong>setlist.fm</strong> and go to your <strong>Account Settings → API</strong> to get a key.</li>
+        <li>Enter the key and the artist name in the Live Setlists tab.</li>
+        <li>Click <strong>"Recreate Latest Setlist"</strong> — the app finds their most recent concert and creates a Spotify playlist of those songs.</li>
+      </ol>
+    </section>
+
+    <!-- FAQ ────────────────────────────────────────────────────────────── -->
+    <section id="faq">
+      <h2>❓ Frequently Asked Questions</h2>
+
+      <details>
+        <summary>Do I need a Spotify Premium account?</summary>
+        <p>No. All features work with a free Spotify account. Premium is not required.</p>
+      </details>
+
+      <details>
+        <summary>Why do I need to create a Spotify Developer App?</summary>
+        <p>Spotify requires all third-party tools to be registered through their developer portal. This lets Spotify track which apps access your data and lets you revoke access at any time. It's the same system used by major apps like Last.fm.</p>
+      </details>
+
+      <details>
+        <summary>My credentials were cleared — what happened?</summary>
+        <p>Credentials are stored in your browser's local storage. Clearing your browser history, cookies, or site data will erase them. You'll need to re-enter them via the wizard. Use the <strong>⚙️ Settings → Update Credentials</strong> button in the sidebar.</p>
+      </details>
+
+      <details>
+        <summary>The app says "INVALID_CLIENT: Invalid redirect URI"</summary>
+        <p>The redirect URI in your Spotify Developer App doesn't match the app's URL. Go to the Spotify Developer Dashboard → your app → Settings → Redirect URIs, and make sure the URL matches exactly what the Spotify Manager wizard showed you (including <code>https://</code> and no trailing slash).</p>
+      </details>
+
+      <details>
+        <summary>How many people can use this app?</summary>
+        <p>Spotify restricts apps in "Development Mode" to <strong>25 users</strong>. This is usually more than enough for personal or small-group sharing. If you need to share it with more people, the app owner would need to apply for a Spotify Quota Extension.</p>
+      </details>
+
+      <details>
+        <summary>Can I use the app on my phone?</summary>
+        <p>Yes — the app works in any modern mobile browser. The layout is optimised for desktop but is functional on mobile too.</p>
+      </details>
+
+      <details>
+        <summary>The app shows a loading spinner but never loads</summary>
+        <p>Try refreshing the page. If the app was inactive for more than 7 days, Streamlit may put it to sleep — it wakes up within 30 seconds on the next visit.</p>
+      </details>
+    </section>
+
+    <!-- TROUBLESHOOTING ─────────────────────────────────────────────────── -->
+    <section id="trouble">
+      <h2>🔧 Troubleshooting</h2>
+
+      <h3>App won't load / blank page</h3>
+      <ol class="steps">
+        <li>Hard-refresh the page: <strong>Ctrl + Shift + R</strong> (Windows) or <strong>Cmd + Shift + R</strong> (Mac).</li>
+        <li>Try a different browser (Chrome or Edge work best).</li>
+        <li>Clear your browser cache and reload.</li>
+      </ol>
+
+      <h3>Can't connect to Spotify / login loop</h3>
+      <ol class="steps">
+        <li>Double-check that the <strong>Redirect URI</strong> in your Spotify Developer App exactly matches the app URL.</li>
+        <li>Make sure you ticked <strong>Web API</strong> when creating your Spotify Developer App.</li>
+        <li>Go to <strong>⚙️ Settings → Update Credentials</strong> and re-enter your Client ID and Secret.</li>
+        <li>Try logging out of Spotify in your browser and logging back in, then reconnect.</li>
+      </ol>
+
+      <h3>Playlists not appearing / wrong playlists</h3>
+      <ol class="steps">
+        <li>In the <strong>Duplicate Finder</strong> or <strong>Blender</strong> tab, click <strong>"Load My Playlists"</strong> to refresh the list.</li>
+        <li>Only playlists you <em>own</em> (not ones you follow) appear for editing.</li>
+        <li>Check Spotify directly to confirm the playlist exists.</li>
+      </ol>
+
+      <h3>Monthly playlists are missing some tracks</h3>
+      <p>Monthly playlists are based on the <strong>date you added tracks to your Liked Songs</strong> — not when you first listened to them. Tracks added before you started saving to Liked Songs won't appear in older monthly playlists.</p>
+
+      <h3>Dead Song Checker says it can't verify your country</h3>
+      <p>Spotify doesn't always expose your country code via the API. This is a Spotify limitation and unfortunately can't be worked around by the app.</p>
+
+      <hr class="divider">
+
+      <p>Still stuck? Contact the app owner who shared this link with you.</p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  function show(id) {
+    // Hide all sections
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    // Show selected
+    document.getElementById(id).classList.add('active');
+    document.getElementById('nav-' + id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
